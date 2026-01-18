@@ -16,14 +16,14 @@ class MainScreen extends StatelessWidget {
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(
-            icon: Icon(Icons.book),
-            label: 'Uslub', // New Uslub Screen
+            icon: Icon(Icons.history),
+            label: 'Riwayat', // Changed from Uslub to Riwayat
           ),
           BottomNavigationBarItem(icon: Icon(Icons.bookmark), label: 'Saved'),
           BottomNavigationBarItem(icon: Icon(Icons.style), label: 'Flashcards'),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
         ],
-        selectedItemColor: Colors.indigoAccent,
+        selectedItemColor: Colors.blueAccent, // Accent Blue
         unselectedItemColor: Colors.grey,
         showUnselectedLabels: true,
       ),

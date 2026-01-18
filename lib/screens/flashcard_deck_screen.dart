@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:panara_dialogs/panara_dialogs.dart';
 import 'package:go_router/go_router.dart';
 import 'package:uslub_araby/providers/flashcard_deck_provider.dart';
 
@@ -23,10 +24,7 @@ class _FlashcardDeckScreenState extends State<FlashcardDeckScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Flashcard'),
-        backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-      ),
+      appBar: AppBar(title: const Text('Flashcard')),
       body: Consumer<FlashcardDeckProvider>(
         builder: (context, provider, child) {
           if (provider.isLoading) {
@@ -160,17 +158,42 @@ class _FlashcardDeckScreenState extends State<FlashcardDeckScreen> {
                 : Text(
                     '${deck.createdAt.day}/${deck.createdAt.month}/${deck.createdAt.year}',
                   ),
-            trailing: FutureBuilder<Map<String, int>>(
-              future: context.read<FlashcardDeckProvider>().getDeckStats(
-                deck.id,
-              ),
-              builder: (context, snapshot) {
-                final stats = snapshot.data;
-                return Text(
-                  stats != null ? '${stats['total']} kartu' : '0 kartu',
-                  style: TextStyle(color: Colors.grey[600]),
-                );
+            trailing: PopupMenuButton<String>(
+              onSelected: (value) {
+                if (value == 'delete') {
+                  _showDeleteDeckDialog(context, deck);
+                }
               },
+              itemBuilder: (context) => [
+                const PopupMenuItem<String>(
+                  value: 'delete',
+                  child: Row(
+                    children: [
+                      Icon(Icons.delete, color: Colors.red),
+                      SizedBox(width: 8),
+                      Text('Hapus Deck'),
+                    ],
+                  ),
+                ),
+              ],
+              child: FutureBuilder<Map<String, int>>(
+                future: context.read<FlashcardDeckProvider>().getDeckStats(
+                  deck.id,
+                ),
+                builder: (context, snapshot) {
+                  final stats = snapshot.data;
+                  return Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        stats != null ? '${stats['total']} kartu' : '0 kartu',
+                        style: TextStyle(color: Colors.grey[600]),
+                      ),
+                      const Icon(Icons.more_vert),
+                    ],
+                  );
+                },
+              ),
             ),
             onTap: () {
               context.go('/flashcard-session/${deck.id}');
@@ -282,6 +305,8 @@ class _FlashcardDeckScreenState extends State<FlashcardDeckScreen> {
                     onPressed: () async {
                       final deckName = deckNameController.text.trim();
                       if (deckName.isNotEmpty) {
+                        final navigator = Navigator.of(context);
+                        final messenger = ScaffoldMessenger.of(context);
                         final success = await context
                             .read<FlashcardDeckProvider>()
                             .createDeck(
@@ -292,8 +317,8 @@ class _FlashcardDeckScreenState extends State<FlashcardDeckScreen> {
                             );
 
                         if (success) {
-                          Navigator.of(context).pop();
-                          ScaffoldMessenger.of(context).showSnackBar(
+                          navigator.pop();
+                          messenger.showSnackBar(
                             SnackBar(
                               content: Text(
                                 'Deck "$deckName" berhasil dibuat!',
@@ -302,7 +327,7 @@ class _FlashcardDeckScreenState extends State<FlashcardDeckScreen> {
                             ),
                           );
                         } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
+                          messenger.showSnackBar(
                             const SnackBar(
                               content: Text('Gagal membuat deck'),
                               backgroundColor: Colors.red,
@@ -330,6 +355,60 @@ class _FlashcardDeckScreenState extends State<FlashcardDeckScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  void _showDeleteDeckDialog(BuildContext context, deck) {
+    PanaraConfirmDialog.show(
+      context,
+      title: 'Hapus Deck',
+      message:
+          'Apakah Anda yakin ingin menghapus deck "${deck.name}"? Semua kartu flashcard di dalam deck ini akan dihapus secara permanen. Tindakan ini tidak dapat dibatalkan.',
+      confirmButtonText: 'Hapus',
+      cancelButtonText: 'Batal',
+      onTapConfirm: () async {
+        final messenger = ScaffoldMessenger.of(context);
+        final navigator = Navigator.of(context, rootNavigator: true);
+        try {
+          final success = await context
+              .read<FlashcardDeckProvider>()
+              .deleteDeck(deck.id);
+
+          navigator.pop(); // Close dialog first
+
+          if (success) {
+            messenger.showSnackBar(
+              SnackBar(
+                content: Text('Deck "${deck.name}" berhasil dihapus'),
+                backgroundColor: Colors.green,
+              ),
+            );
+          } else {
+            messenger.showSnackBar(
+              const SnackBar(
+                content: Text('Gagal menghapus deck'),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+        } catch (e) {
+          debugPrint('Error in delete deck dialog: $e');
+          // Close dialog even if there's an error
+          navigator.pop();
+          // Show error message
+          messenger.showSnackBar(
+            SnackBar(
+              content: Text('Terjadi kesalahan: $e'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      },
+      onTapCancel: () {
+        Navigator.of(context, rootNavigator: true).pop();
+      },
+      panaraDialogType: PanaraDialogType.error,
+      barrierDismissible: false,
     );
   }
 }

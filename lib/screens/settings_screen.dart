@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:panara_dialogs/panara_dialogs.dart';
 import 'package:uslub_araby/providers/theme_provider.dart';
 import 'package:uslub_araby/providers/saved_words_provider.dart';
+import 'package:uslub_araby/providers/flashcard_deck_provider.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -9,10 +11,7 @@ class SettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Pengaturan'),
-        backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-      ),
+      appBar: AppBar(title: const Text('Pengaturan')),
       body: Consumer<ThemeProvider>(
         builder: (context, themeProvider, child) {
           return ListView(
@@ -145,6 +144,18 @@ class SettingsScreen extends StatelessWidget {
                       trailing: const Icon(Icons.chevron_right),
                       onTap: () {
                         _showResetDialog(context);
+                      },
+                    ),
+                    const Divider(),
+                    ListTile(
+                      leading: const Icon(Icons.school, color: Colors.orange),
+                      title: const Text('Reset Flashcard Progress'),
+                      subtitle: const Text(
+                        'Reset status dipelajari dan dikuasai',
+                      ),
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () {
+                        _showResetFlashcardDialog(context);
                       },
                     ),
                     const Divider(),
@@ -288,37 +299,58 @@ class SettingsScreen extends StatelessWidget {
   }
 
   void _showResetDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Reset Progress'),
-        content: const Text(
-          'Apakah Anda yakin ingin menghapus semua kata yang tersimpan? '
-          'Tindakan ini tidak dapat dibatalkan.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Batal'),
-          ),
-          TextButton(
-            onPressed: () {
-              // Reset saved words
-              final savedWordsProvider = Provider.of<SavedWordsProvider>(
-                context,
-                listen: false,
-              );
-              savedWordsProvider.clearAllSavedWords();
-              Navigator.of(context).pop();
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Progress berhasil direset')),
-              );
-            },
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Reset'),
-          ),
-        ],
-      ),
+    PanaraConfirmDialog.show(
+      context,
+      title: 'Reset Progress',
+      message:
+          'Apakah Anda yakin ingin menghapus semua kata yang tersimpan? Tindakan ini tidak dapat dibatalkan.',
+      confirmButtonText: 'Reset',
+      cancelButtonText: 'Batal',
+      onTapConfirm: () {
+        // Reset saved words
+        final savedWordsProvider = Provider.of<SavedWordsProvider>(
+          context,
+          listen: false,
+        );
+        savedWordsProvider.clearAllSavedWords();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Progress berhasil direset')),
+        );
+        Navigator.of(context, rootNavigator: true).pop();
+      },
+      onTapCancel: () {
+        Navigator.of(context, rootNavigator: true).pop();
+      },
+      panaraDialogType: PanaraDialogType.warning,
+      barrierDismissible: false,
+    );
+  }
+
+  void _showResetFlashcardDialog(BuildContext context) {
+    PanaraConfirmDialog.show(
+      context,
+      title: 'Reset Flashcard Progress',
+      message:
+          'Apakah Anda yakin ingin mereset semua progress flashcard? Status "dipelajari" dan "dikuasai" akan dihapus dari semua kartu. Tindakan ini tidak dapat dibatalkan.',
+      confirmButtonText: 'Reset',
+      cancelButtonText: 'Batal',
+      onTapConfirm: () {
+        // Reset flashcard progress
+        final flashcardProvider = Provider.of<FlashcardDeckProvider>(
+          context,
+          listen: false,
+        );
+        flashcardProvider.resetFlashcardProgress();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Progress flashcard berhasil direset')),
+        );
+        Navigator.of(context, rootNavigator: true).pop();
+      },
+      onTapCancel: () {
+        Navigator.of(context, rootNavigator: true).pop();
+      },
+      panaraDialogType: PanaraDialogType.warning,
+      barrierDismissible: false,
     );
   }
 }

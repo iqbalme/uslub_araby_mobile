@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import 'package:uslub_araby/providers/flashcard_deck_provider.dart';
 import 'package:uslub_araby/providers/uslub_provider.dart';
 import 'package:uslub_araby/data/database.dart';
+import 'package:flutter_tts/flutter_tts.dart';
+import 'dart:io';
 
 class FlashcardSessionScreen extends StatefulWidget {
   final String deckId;
@@ -18,11 +20,20 @@ class _FlashcardSessionScreenState extends State<FlashcardSessionScreen> {
   int _currentIndex = 0;
   bool _showAnswer = false;
   bool _isLoading = true;
+  late FlutterTts flutterTts;
 
   @override
   void initState() {
     super.initState();
+    _initializeTts();
     _loadCards();
+  }
+
+  Future<void> _initializeTts() async {
+    flutterTts = FlutterTts();
+    await flutterTts.setLanguage('ar');
+    await flutterTts.setPitch(1.0);
+    await flutterTts.setSpeechRate(Platform.isIOS ? 0.5 : 0.5);
   }
 
   Future<void> _loadCards() async {
@@ -51,6 +62,44 @@ class _FlashcardSessionScreenState extends State<FlashcardSessionScreen> {
         _wordData = wordData;
         _isLoading = false;
       });
+    }
+  }
+
+  Future<void> _speakQuestion() async {
+    if (_cards.isNotEmpty && !_showAnswer) {
+      final card = _cards[_currentIndex];
+      final word = _wordData[card.wordId];
+
+      if (word != null && word.ungkapan != null) {
+        try {
+          final isAvailable = await flutterTts.isLanguageAvailable('ar');
+          if (isAvailable) {
+            await flutterTts.speak(word.ungkapan!);
+          } else {
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text(
+                    'Bahasa Arab tidak didukung. Pergi ke Pengaturan > Aksesibilitas > Output teks-ke-suara > Engine, dan pilih engine yang mendukung Arab (misalnya Google TTS).',
+                  ),
+                  duration: Duration(seconds: 6),
+                ),
+              );
+            }
+          }
+        } catch (e) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  'Error TTS: $e. Periksa pengaturan suara perangkat.',
+                ),
+                duration: const Duration(seconds: 4),
+              ),
+            );
+          }
+        }
+      }
     }
   }
 
@@ -146,7 +195,6 @@ class _FlashcardSessionScreenState extends State<FlashcardSessionScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Flashcard Session'),
-        backgroundColor: Theme.of(context).colorScheme.primaryContainer,
         actions: [
           if (_cards.isNotEmpty)
             Padding(
@@ -279,6 +327,18 @@ class _FlashcardSessionScreenState extends State<FlashcardSessionScreen> {
                           ),
                         ),
                       ),
+                      if (!_showAnswer) ...[
+                        const SizedBox(height: 16),
+                        IconButton(
+                          onPressed: _speakQuestion,
+                          icon: const Icon(
+                            Icons.volume_up,
+                            color: Colors.blueAccent,
+                            size: 32,
+                          ),
+                          tooltip: 'Dengarkan Pengucapan',
+                        ),
+                      ],
                       const SizedBox(height: 32),
                       Text(
                         'Ketuk kartu untuk ${_showAnswer ? 'menyembunyikan' : 'melihat'} jawaban',
@@ -667,5 +727,11 @@ class _FlashcardSessionScreenState extends State<FlashcardSessionScreen> {
         ],
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    flutterTts.stop();
+    super.dispose();
   }
 }

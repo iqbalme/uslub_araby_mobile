@@ -10,10 +10,7 @@ class StatisticsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Statistik Belajar'),
-        backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-      ),
+      appBar: AppBar(title: const Text('Statistik Belajar')),
       body: Consumer2<UslubProvider, SavedWordsProvider>(
         builder: (context, uslubProvider, savedProvider, child) {
           final totalWords = uslubProvider.words.length;

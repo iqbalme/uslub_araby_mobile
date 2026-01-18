@@ -219,6 +219,17 @@ La ilaha illallah'''),
     return update(flashcardCards).replace(card);
   }
 
+  Future<int> resetFlashcardProgress() async {
+    return (update(flashcardCards)
+          ..where((t) => t.isLearned.equals(true) | t.isMastered.equals(true)))
+        .write(
+          FlashcardCardsCompanion(
+            isLearned: const Value(false),
+            isMastered: const Value(false),
+          ),
+        );
+  }
+
   // Get deck statistics
   Future<Map<String, int>> getDeckStats(int deckId) async {
     final cards = await getCardsByDeckId(deckId);

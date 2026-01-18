@@ -10,10 +10,7 @@ class SavedWordsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Kata Tersimpan'),
-        backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-      ),
+      appBar: AppBar(title: const Text('Kata Tersimpan')),
       body: Consumer<SavedWordsProvider>(
         builder: (context, provider, child) {
           if (provider.isLoading) {

@@ -142,4 +142,14 @@ class FlashcardDeckProvider with ChangeNotifier {
       return false;
     }
   }
+
+  Future<bool> resetFlashcardProgress() async {
+    try {
+      await _database.resetFlashcardProgress();
+      return true;
+    } catch (e) {
+      debugPrint('Error resetting flashcard progress: $e');
+      return false;
+    }
+  }
 }
