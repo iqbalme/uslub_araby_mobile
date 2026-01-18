@@ -1,30 +1,38 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
-import 'package:myapp/main.dart';
+import 'package:provider/provider.dart';
+import 'package:uslub_araby/main.dart';
+import 'package:uslub_araby/providers/theme_provider.dart';
+import 'package:uslub_araby/providers/dictionary_provider.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  // Setup provider yang dibutuhkan untuk tes
+  Widget createTestableWidget({required Widget child}) {
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => ThemeProvider()),
+        ChangeNotifierProvider(create: (_) => DictionaryProvider()),
+      ],
+      child: MaterialApp(
+        home: child,
+      ),
+    );
+  }
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+  testWidgets('Layar utama menampilkan judul dan ikon pencarian', (WidgetTester tester) async {
+    // Bangun widget MyApp di dalam lingkungan tes
+    await tester.pumpWidget(createTestableWidget(child: const MyApp()));
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+    // Tunggu semua frame selesai dirender
+    await tester.pumpAndSettle();
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    // Verifikasi bahwa judul AppBar "Kamus Digital" ditampilkan
+    expect(find.text('Kamus Digital'), findsOneWidget);
+
+    // Verifikasi bahwa ada ikon pencarian di AppBar
+    expect(find.byIcon(Icons.search), findsOneWidget);
+    
+    // Verifikasi bahwa ada teks "Daftar Kata" yang merupakan judul bagian
+    expect(find.text('Daftar Kata'), findsOneWidget);
   });
 }

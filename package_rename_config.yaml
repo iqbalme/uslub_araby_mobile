@@ -1,0 +1,32 @@
+package_rename_config:
+  android:
+    app_name: "Uslub Araby" # Display name
+    package_name: "com.org.uslub_araby" # Package name
+    override_old_package: "com.example.myapp" # Optional: Cleans up old folder structure
+    lang: "kotlin" # Optional: "kotlin" (default) or "java"
+
+  ios:
+    app_name: "Uslub Araby" # Display name
+    bundle_name: "Uslub Araby" # Bundle name
+    package_name: "com.org.uslub_araby" # Package name
+
+  linux:
+    app_name: "Uslub Araby" # Display name
+    package_name: "com.org.uslub_araby" # Package name
+    exe_name: "uslub_araby" # Executable name (binary)
+
+  macos:
+    app_name: "Uslub Araby" # Display name
+    package_name: "com.org.uslub_araby" # Package name
+    copyright_notice: "Copyright © 2024" # Copyright notice
+
+  web:
+    app_name: "Uslub Araby" # App title & PWA name
+    short_app_name: "Uslub Araby" # PWA short name (defaults to app_name)
+    description: "Belajar Uslub Araby" # Web app description
+
+  windows:
+    app_name: "Uslub Araby" # Window title & Software name
+    organization: "Muhammad Iqbal" # Organization/Company name
+    copyright_notice: "Copyright © 2024" # Legal copyright
+    exe_name: "uslub_araby" # Executable name (binary)
