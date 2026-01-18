@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:uslub_araby/providers/dictionary_provider.dart';
+import 'package:uslub_araby/providers/uslub_provider.dart';
 
 class SearchBarWidget extends StatefulWidget {
   const SearchBarWidget({super.key});
@@ -19,7 +19,7 @@ class _SearchBarWidgetState extends State<SearchBarWidget> {
   }
 
   void _onSearchChanged(String query) {
-    Provider.of<DictionaryProvider>(context, listen: false).search(query);
+    Provider.of<UslubProvider>(context, listen: false).search(query);
   }
 
   @override

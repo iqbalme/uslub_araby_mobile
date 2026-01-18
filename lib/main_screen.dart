@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -15,28 +14,16 @@ class MainScreen extends StatelessWidget {
         currentIndex: _calculateSelectedIndex(context),
         onTap: (index) => _onItemTapped(index, context),
         items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(
             icon: Icon(Icons.book),
             label: 'Uslub', // New Uslub Screen
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.bookmark),
-            label: 'Saved',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.style),
-            label: 'Flashcards',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profile',
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.bookmark), label: 'Saved'),
+          BottomNavigationBarItem(icon: Icon(Icons.style), label: 'Flashcards'),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
         ],
-        selectedItemColor: Colors.amber[800],
+        selectedItemColor: Colors.indigoAccent,
         unselectedItemColor: Colors.grey,
         showUnselectedLabels: true,
       ),
@@ -45,7 +32,8 @@ class MainScreen extends StatelessWidget {
 
   static int _calculateSelectedIndex(BuildContext context) {
     final GoRouter route = GoRouter.of(context);
-    final String location = route.routerDelegate.currentConfiguration.uri.toString();
+    final String location = route.routerDelegate.currentConfiguration.uri
+        .toString();
     if (location.startsWith('/uslub')) {
       return 1;
     }

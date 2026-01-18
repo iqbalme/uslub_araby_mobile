@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:uslub_araby/main.dart';
 import 'package:uslub_araby/providers/theme_provider.dart';
-import 'package:uslub_araby/providers/dictionary_provider.dart';
+import 'package:uslub_araby/providers/uslub_provider.dart';
 
 void main() {
   // Setup provider yang dibutuhkan untuk tes
@@ -11,7 +11,7 @@ void main() {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
-        ChangeNotifierProvider(create: (_) => DictionaryProvider()),
+        ChangeNotifierProvider(create: (_) => UslubProvider()),
       ],
       child: MaterialApp(
         home: child,
@@ -19,7 +19,8 @@ void main() {
     );
   }
 
-  testWidgets('Layar utama menampilkan judul dan ikon pencarian', (WidgetTester tester) async {
+  testWidgets('Layar utama menampilkan judul dan ikon pencarian',
+      (WidgetTester tester) async {
     // Bangun widget MyApp di dalam lingkungan tes
     await tester.pumpWidget(createTestableWidget(child: const MyApp()));
 
@@ -31,7 +32,7 @@ void main() {
 
     // Verifikasi bahwa ada ikon pencarian di AppBar
     expect(find.byIcon(Icons.search), findsOneWidget);
-    
+
     // Verifikasi bahwa ada teks "Daftar Kata" yang merupakan judul bagian
     expect(find.text('Daftar Kata'), findsOneWidget);
   });

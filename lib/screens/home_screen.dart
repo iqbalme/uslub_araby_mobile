@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:uslub_araby/providers/uslub_provider.dart';
 import 'package:uslub_araby/widgets/search_bar_widget.dart';
 import 'package:uslub_araby/widgets/word_list_widget.dart';
 
@@ -24,7 +25,7 @@ class HomeScreen extends StatelessWidget {
         children: [
           const SearchBarWidget(),
           Expanded(
-            child: Consumer<DictionaryProvider>(
+            child: Consumer<UslubProvider>(
               builder: (context, provider, child) {
                 if (provider.isLoading) {
                   return const Center(child: CircularProgressIndicator());

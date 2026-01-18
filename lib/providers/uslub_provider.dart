@@ -1,4 +1,3 @@
-
 import 'dart:developer' as developer;
 import 'package:flutter/foundation.dart';
 import 'package:uslub_araby/data/database.dart';
@@ -22,12 +21,36 @@ class UslubProvider with ChangeNotifier {
     notifyListeners();
     try {
       _words = await _db.getAllWords();
+
+      // If no data, seed initial data
+      if (_words.isEmpty) {
+        await _seedInitialData();
+        _words = await _db.getAllWords();
+      }
     } catch (e, s) {
-      developer.log('Error fetching words from Drift', name: 'uslub_araby.uslub_provider', error: e, stackTrace: s);
+      developer.log(
+        'Error fetching words from Drift',
+        name: 'uslub_araby.uslub_provider',
+        error: e,
+        stackTrace: s,
+      );
       _words = [];
     }
     _isLoading = false;
     notifyListeners();
+  }
+
+  Future<void> _seedInitialData() async {
+    try {
+      await _db.seedInitialData();
+    } catch (e, s) {
+      developer.log(
+        'Error seeding initial data',
+        name: 'uslub_provider',
+        error: e,
+        stackTrace: s,
+      );
+    }
   }
 
   Future<void> search(String query) async {
@@ -41,7 +64,12 @@ class UslubProvider with ChangeNotifier {
         _words = await _db.searchWords(query);
       }
     } catch (e, s) {
-      developer.log('Error searching words in Drift', name: 'uslub_araby.uslub_provider', error: e, stackTrace: s);
+      developer.log(
+        'Error searching words in Drift',
+        name: 'uslub_araby.uslub_provider',
+        error: e,
+        stackTrace: s,
+      );
       _words = [];
     }
     _isLoading = false;
@@ -52,7 +80,12 @@ class UslubProvider with ChangeNotifier {
     try {
       return await _db.getWordById(id);
     } catch (e, s) {
-      developer.log('Error fetching word by id from Drift', name: 'uslub_araby.uslub_provider', error: e, stackTrace: s);
+      developer.log(
+        'Error fetching word by id from Drift',
+        name: 'uslub_araby.uslub_provider',
+        error: e,
+        stackTrace: s,
+      );
       return null;
     }
   }
