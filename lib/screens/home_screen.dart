@@ -31,137 +31,145 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Kamus Uslub'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.info_outline),
-            onPressed: () {
-              // TODO: Navigasi ke halaman About
-            },
-          ),
-        ],
-      ),
-      body: Container(
-        color: const Color(0xFF1a1a2e), // Dark Grey / Deep Blue background
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Search Bar with Light Blue Border
-              Container(
-                margin: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.lightBlue, width: 2),
-                  borderRadius: BorderRadius.circular(30),
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop) {
+          context.go('/uslub');
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Kamus Uslub'),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.info_outline),
+              onPressed: () {
+                // TODO: Navigasi ke halaman About
+              },
+            ),
+          ],
+        ),
+        body: Container(
+          color: const Color(0xFF1a1a2e), // Dark Grey / Deep Blue background
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Search Bar with Light Blue Border
+                Container(
+                  margin: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.lightBlue, width: 2),
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                  child: SearchBarWidget(key: _searchBarKey),
                 ),
-                child: SearchBarWidget(key: _searchBarKey),
-              ),
 
-              // Riwayat Terakhir
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                child: Text(
-                  'Riwayat Pencarian',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
+                // Riwayat Terakhir
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: Text(
+                    'Riwayat Pencarian',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
-              ),
 
-              // Recent Searches
-              Consumer<UslubProvider>(
-                builder: (context, provider, child) {
-                  if (provider.recentSearches.isEmpty) {
-                    return const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16),
-                      child: Text(
-                        'Belum ada riwayat pencarian',
-                        style: TextStyle(color: Colors.white70),
-                      ),
-                    );
-                  }
-
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Wrap(
-                      alignment: WrapAlignment.start,
-                      spacing: 12, // Horizontal spacing between items
-                      runSpacing: 8, // Vertical spacing between rows
-                      children: provider.recentSearches.map((search) {
-                        return _buildRecentSearchCard(search, provider);
-                      }).toList(),
-                    ),
-                  );
-                },
-              ),
-
-              const SizedBox(height: 20),
-
-              // Search Results (if any)
-              Consumer<UslubProvider>(
-                builder: (context, provider, child) {
-                  if (provider.isLoading) {
-                    return const Center(
-                      child: Padding(
-                        padding: EdgeInsets.all(20),
-                        child: CircularProgressIndicator(),
-                      ),
-                    );
-                  }
-                  if (provider.words.isNotEmpty &&
-                      provider.currentQuery.isNotEmpty) {
-                    return Container(
-                      margin: const EdgeInsets.all(16),
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Hasil Pencarian: "${provider.currentQuery}"',
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 10),
-                          SizedBox(
-                            height: 300,
-                            child: WordListWidget(words: provider.words),
-                          ),
-                        ],
-                      ),
-                    );
-                  }
-                  if (provider.currentQuery.isNotEmpty &&
-                      provider.words.isEmpty &&
-                      !provider.isLoading) {
-                    return Container(
-                      margin: const EdgeInsets.all(16),
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: const Center(
+                // Recent Searches
+                Consumer<UslubProvider>(
+                  builder: (context, provider, child) {
+                    if (provider.recentSearches.isEmpty) {
+                      return const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 16),
                         child: Text(
-                          'Data tidak ditemukan',
-                          style: TextStyle(fontSize: 16, color: Colors.grey),
+                          'Belum ada riwayat pencarian',
+                          style: TextStyle(color: Colors.white70),
                         ),
+                      );
+                    }
+
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Wrap(
+                        alignment: WrapAlignment.start,
+                        spacing: 12, // Horizontal spacing between items
+                        runSpacing: 8, // Vertical spacing between rows
+                        children: provider.recentSearches.map((search) {
+                          return _buildRecentSearchCard(search, provider);
+                        }).toList(),
                       ),
                     );
-                  }
-                  return const SizedBox.shrink();
-                },
-              ),
-            ],
+                  },
+                ),
+
+                const SizedBox(height: 20),
+
+                // Search Results (if any)
+                Consumer<UslubProvider>(
+                  builder: (context, provider, child) {
+                    if (provider.isLoading) {
+                      return const Center(
+                        child: Padding(
+                          padding: EdgeInsets.all(20),
+                          child: CircularProgressIndicator(),
+                        ),
+                      );
+                    }
+                    if (provider.words.isNotEmpty &&
+                        provider.currentQuery.isNotEmpty) {
+                      return Container(
+                        margin: const EdgeInsets.all(16),
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Hasil Pencarian: "${provider.currentQuery}"',
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            SizedBox(
+                              height: 300,
+                              child: WordListWidget(words: provider.words),
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+                    if (provider.currentQuery.isNotEmpty &&
+                        provider.words.isEmpty &&
+                        !provider.isLoading) {
+                      return Container(
+                        margin: const EdgeInsets.all(16),
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Center(
+                          child: Text(
+                            'Data tidak ditemukan',
+                            style: TextStyle(fontSize: 16, color: Colors.grey),
+                          ),
+                        ),
+                      );
+                    }
+                    return const SizedBox.shrink();
+                  },
+                ),
+              ],
+            ),
           ),
         ),
       ),

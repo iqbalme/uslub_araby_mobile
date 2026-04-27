@@ -6,6 +6,7 @@ import 'package:uslub_araby/providers/saved_words_provider.dart';
 import 'package:uslub_araby/providers/flashcard_deck_provider.dart';
 import 'package:uslub_araby/services/notification_service.dart';
 import 'package:uslub_araby/services/data_export_import_service.dart';
+import 'package:uslub_araby/services/app_info_service.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -122,8 +123,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
             TextButton(
               onPressed: () => Navigator.of(context).pop(true),
-              child: const Text('Impor'),
               style: TextButton.styleFrom(foregroundColor: Colors.red),
+              child: const Text('Impor'),
             ),
           ],
         ),
@@ -344,22 +345,25 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Padding(
-                  padding: EdgeInsets.all(16),
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Kamus Uslub',
-                        style: TextStyle(
+                        AppInfoService().displayName,
+                        style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      SizedBox(height: 8),
-                      Text('Versi 1.0.0', style: TextStyle(color: Colors.grey)),
-                      SizedBox(height: 4),
+                      const SizedBox(height: 8),
                       Text(
+                        'Versi ${AppInfoService().appVersion}',
+                        style: const TextStyle(color: Colors.grey),
+                      ),
+                      const SizedBox(height: 4),
+                      const Text(
                         'Aplikasi untuk belajar ungkapan Arab dengan mudah',
                         style: TextStyle(color: Colors.grey),
                       ),

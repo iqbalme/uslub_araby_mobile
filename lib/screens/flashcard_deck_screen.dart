@@ -23,79 +23,87 @@ class _FlashcardDeckScreenState extends State<FlashcardDeckScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Flashcard')),
-      body: Consumer<FlashcardDeckProvider>(
-        builder: (context, provider, child) {
-          if (provider.isLoading) {
-            return const Center(child: CircularProgressIndicator());
-          }
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop) {
+          context.go('/uslub');
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(title: const Text('Flashcard')),
+        body: Consumer<FlashcardDeckProvider>(
+          builder: (context, provider, child) {
+            if (provider.isLoading) {
+              return const Center(child: CircularProgressIndicator());
+            }
 
-          final decks = provider.decks;
+            final decks = provider.decks;
 
-          return Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Stats Card
-                FutureBuilder<Map<String, int>>(
-                  future: _getTotalStats(provider),
-                  builder: (context, snapshot) {
-                    final stats =
-                        snapshot.data ??
-                        {'total': 0, 'learned': 0, 'mastered': 0};
-                    return Card(
-                      elevation: 2,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(20),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                            _buildStatItem(
-                              context,
-                              stats['total'].toString(),
-                              'Total Kartu',
-                            ),
-                            _buildStatItem(
-                              context,
-                              stats['learned'].toString(),
-                              'Dipelajari',
-                            ),
-                            _buildStatItem(
-                              context,
-                              stats['mastered'].toString(),
-                              'Dikuasai',
-                            ),
-                          ],
+            return Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Stats Card
+                  FutureBuilder<Map<String, int>>(
+                    future: _getTotalStats(provider),
+                    builder: (context, snapshot) {
+                      final stats =
+                          snapshot.data ??
+                          {'total': 0, 'learned': 0, 'mastered': 0};
+                      return Card(
+                        elevation: 2,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
                         ),
-                      ),
-                    );
-                  },
-                ),
-                const SizedBox(height: 24),
-                const Text(
-                  'Deck Flashcard',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 16),
-                // Deck List or Empty State
-                Expanded(
-                  child: decks.isEmpty
-                      ? _buildEmptyState()
-                      : _buildDeckList(decks),
-                ),
-              ],
-            ),
-          );
-        },
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _showCreateDeckDialog(context),
-        child: const Icon(Icons.add),
+                        child: Padding(
+                          padding: const EdgeInsets.all(20),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              _buildStatItem(
+                                context,
+                                stats['total'].toString(),
+                                'Total Kartu',
+                              ),
+                              _buildStatItem(
+                                context,
+                                stats['learned'].toString(),
+                                'Dipelajari',
+                              ),
+                              _buildStatItem(
+                                context,
+                                stats['mastered'].toString(),
+                                'Dikuasai',
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 24),
+                  const Text(
+                    'Deck Flashcard',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 16),
+                  // Deck List or Empty State
+                  Expanded(
+                    child: decks.isEmpty
+                        ? _buildEmptyState()
+                        : _buildDeckList(decks),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () => _showCreateDeckDialog(context),
+          child: const Icon(Icons.add),
+        ),
       ),
     );
   }

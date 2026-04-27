@@ -13,7 +13,7 @@ class StatisticsScreen extends StatefulWidget {
 }
 
 class _StatisticsScreenState extends State<StatisticsScreen> {
-  Map<String, bool> _achievements = {
+  final Map<String, bool> _achievements = {
     'pemula': false,
     'mahir': false,
     'ahli': false,

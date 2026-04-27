@@ -160,148 +160,161 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Profil')),
-      body: Consumer<ProfileProvider>(
-        builder: (context, profileProvider, _) {
-          return ListView(
-            padding: const EdgeInsets.all(16),
-            children: [
-              // Profile Header
-              Card(
-                elevation: 2,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(24),
-                  child: Column(
-                    children: [
-                      Stack(
-                        children: [
-                          CircleAvatar(
-                            radius: 50,
-                            backgroundColor: Theme.of(
-                              context,
-                            ).colorScheme.primary,
-                            child: profileProvider.profileImagePath != null
-                                ? ClipOval(
-                                    child: Image.file(
-                                      File(profileProvider.profileImagePath!),
-                                      width: 100,
-                                      height: 100,
-                                      fit: BoxFit.cover,
-                                      errorBuilder:
-                                          (context, error, stackTrace) {
-                                            return const Icon(
-                                              Icons.person,
-                                              size: 50,
-                                              color: Colors.white,
-                                            );
-                                          },
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop) {
+          context.go('/uslub');
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(title: const Text('Profil')),
+        body: Consumer<ProfileProvider>(
+          builder: (context, profileProvider, _) {
+            return ListView(
+              padding: const EdgeInsets.all(16),
+              children: [
+                // Profile Header
+                Card(
+                  elevation: 2,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Column(
+                      children: [
+                        Stack(
+                          children: [
+                            CircleAvatar(
+                              radius: 50,
+                              backgroundColor: Theme.of(
+                                context,
+                              ).colorScheme.primary,
+                              child: profileProvider.profileImagePath != null
+                                  ? ClipOval(
+                                      child: Image.file(
+                                        File(profileProvider.profileImagePath!),
+                                        width: 100,
+                                        height: 100,
+                                        fit: BoxFit.cover,
+                                        errorBuilder:
+                                            (context, error, stackTrace) {
+                                              return const Icon(
+                                                Icons.person,
+                                                size: 50,
+                                                color: Colors.white,
+                                              );
+                                            },
+                                      ),
+                                    )
+                                  : const Icon(
+                                      Icons.person,
+                                      size: 50,
+                                      color: Colors.white,
                                     ),
-                                  )
-                                : const Icon(
-                                    Icons.person,
-                                    size: 50,
-                                    color: Colors.white,
+                            ),
+                            Positioned(
+                              bottom: 0,
+                              right: 0,
+                              child: GestureDetector(
+                                onTap: _pickImage,
+                                child: Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.primary,
+                                    shape: BoxShape.circle,
                                   ),
-                          ),
-                          Positioned(
-                            bottom: 0,
-                            right: 0,
-                            child: GestureDetector(
-                              onTap: _pickImage,
+                                  child: const Icon(
+                                    Icons.camera_alt,
+                                    color: Colors.white,
+                                    size: 20,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Expanded(
+                              child: Text(
+                                profileProvider.username,
+                                style: const TextStyle(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                textAlign: TextAlign.center,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            GestureDetector(
+                              onTap: () => _editUsername(
+                                context,
+                                profileProvider.username,
+                              ),
                               child: Container(
                                 padding: const EdgeInsets.all(8),
                                 decoration: BoxDecoration(
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.primaryContainer,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Icon(
+                                  Icons.edit,
+                                  size: 18,
                                   color: Theme.of(context).colorScheme.primary,
-                                  shape: BoxShape.circle,
-                                ),
-                                child: const Icon(
-                                  Icons.camera_alt,
-                                  color: Colors.white,
-                                  size: 20,
                                 ),
                               ),
                             ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Belajar Bahasa Arab dengan Uslub',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey[600],
                           ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Expanded(
-                            child: Text(
-                              profileProvider.username,
-                              style: const TextStyle(
-                                fontSize: 22,
-                                fontWeight: FontWeight.bold,
-                              ),
-                              textAlign: TextAlign.center,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          GestureDetector(
-                            onTap: () => _editUsername(
-                              context,
-                              profileProvider.username,
-                            ),
-                            child: Container(
-                              padding: const EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.primaryContainer,
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Icon(
-                                Icons.edit,
-                                size: 18,
-                                color: Theme.of(context).colorScheme.primary,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Belajar Bahasa Arab dengan Uslub',
-                        style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-                      ),
-                    ],
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 24),
-              // Menu Items
-              _buildMenuItem(
-                context,
-                icon: Icons.bar_chart,
-                title: 'Statistik Belajar',
-                subtitle: 'Lihat progress belajar Anda',
-                onTap: () => context.push('/statistics'),
-              ),
-              _buildMenuItem(
-                context,
-                icon: Icons.settings,
-                title: 'Pengaturan',
-                subtitle: 'Tema, notifikasi, dan lainnya',
-                onTap: () => context.push('/settings'),
-              ),
-              _buildMenuItem(
-                context,
-                icon: Icons.info_outline,
-                title: 'Tentang Aplikasi',
-                subtitle: 'Informasi tentang Kamus Uslub',
-                onTap: () => context.push('/about'),
-              ),
-            ],
-          );
-        },
+                const SizedBox(height: 24),
+                // Menu Items
+                _buildMenuItem(
+                  context,
+                  icon: Icons.bar_chart,
+                  title: 'Statistik Belajar',
+                  subtitle: 'Lihat progress belajar Anda',
+                  onTap: () => context.push('/statistics'),
+                ),
+                _buildMenuItem(
+                  context,
+                  icon: Icons.settings,
+                  title: 'Pengaturan',
+                  subtitle: 'Tema, notifikasi, dan lainnya',
+                  onTap: () => context.push('/settings'),
+                ),
+                _buildMenuItem(
+                  context,
+                  icon: Icons.info_outline,
+                  title: 'Tentang Aplikasi',
+                  subtitle: 'Informasi tentang Kamus Uslub',
+                  onTap: () => context.push('/about'),
+                ),
+              ],
+            );
+          },
+        ),
       ),
     );
   }

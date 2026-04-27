@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:uslub_araby/services/app_info_service.dart';
 import 'help_screen.dart';
 
 class AboutScreen extends StatelessWidget {
@@ -20,25 +22,38 @@ class AboutScreen extends StatelessWidget {
               child: Column(
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(24),
+                    padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       color: Theme.of(context).colorScheme.primaryContainer,
                       shape: BoxShape.circle,
                     ),
-                    child: Icon(
-                      Icons.library_books,
-                      size: 64,
-                      color: Theme.of(context).colorScheme.primary,
+                    child: ClipOval(
+                      child: Image.asset(
+                        'assets/applogo.jpg',
+                        width: 100,
+                        height: 100,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Icon(
+                            Icons.library_books,
+                            size: 64,
+                            color: Theme.of(context).colorScheme.primary,
+                          );
+                        },
+                      ),
                     ),
                   ),
                   const SizedBox(height: 16),
-                  const Text(
-                    'Kamus Uslub',
-                    style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+                  Text(
+                    AppInfoService().displayName,
+                    style: const TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Versi 1.0.0',
+                    'Versi ${AppInfoService().appVersion}',
                     style: TextStyle(fontSize: 16, color: Colors.grey[600]),
                   ),
                 ],
@@ -59,23 +74,22 @@ class AboutScreen extends StatelessWidget {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Padding(
-                padding: EdgeInsets.all(16),
-                child: Text(
-                  'Kamus Uslub adalah aplikasi pembelajaran bahasa Arab yang '
-                  'dirancang khusus untuk membantu Anda mempelajari ungkapan '
-                  'dan idiom dalam bahasa Arab dengan cara yang menyenangkan '
-                  'dan interaktif.\n\n'
-                  'Aplikasi ini menyediakan:\n'
-                  '• Kamus lengkap ungkapan Arab\n'
-                  '• Sistem pencarian cerdas\n'
-                  '• Fitur bookmark untuk menyimpan kata favorit\n'
-                  '• Statistik pembelajaran\n'
-                  '• Mode gelap/terang\n'
-                  '• Flashcard untuk latihan\n\n'
-                  'Dikembangkan dengan ❤️ untuk memudahkan pembelajaran bahasa Arab.\n\n'
-                  'Disadur dari tulisan ust Dr. Nasaruddin Idris Jauhar dalam programnya Nambah Uslub di Facebook.',
-                  style: TextStyle(fontSize: 14, height: 1.6),
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: Markdown(
+                    data: AppInfoService().description,
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    styleSheet: MarkdownStyleSheet(
+                      p: const TextStyle(fontSize: 14, height: 1.6),
+                      strong: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -162,16 +176,16 @@ class AboutScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 12),
-                    const Text(
-                      'Muhammad Iqbal, Lc.',
-                      style: TextStyle(
+                    Text(
+                      AppInfoService().developerName,
+                      style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Dibuat dalam bentuk aplikasi untuk memudahkan pembelajaran bahasa Arab oleh Muhammad Iqbal, Lc.',
+                      'Dibuat dalam bentuk aplikasi untuk memudahkan pembelajaran bahasa Arab oleh ${AppInfoService().developerName}.',
                       style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                       textAlign: TextAlign.center,
                     ),

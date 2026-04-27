@@ -80,9 +80,7 @@ class DataExportImportService {
       Directory? directory;
       if (Platform.isAndroid) {
         directory = await getExternalStorageDirectory();
-        if (directory == null) {
-          directory = await getApplicationDocumentsDirectory();
-        }
+        directory ??= await getApplicationDocumentsDirectory();
       } else {
         directory = await getApplicationDocumentsDirectory();
       }

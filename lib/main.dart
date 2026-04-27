@@ -6,12 +6,14 @@ import 'package:uslub_araby/providers/theme_provider.dart';
 import 'package:uslub_araby/providers/saved_words_provider.dart';
 import 'package:uslub_araby/providers/flashcard_deck_provider.dart';
 import 'package:uslub_araby/services/notification_service.dart';
+import 'package:uslub_araby/services/app_info_service.dart';
 import 'package:uslub_araby/providers/profile_provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await NotificationService().init();
+  await AppInfoService().initialize();
   final profileProvider = ProfileProvider();
   await profileProvider.initialize();
   runApp(MyApp(profileProvider: profileProvider));
