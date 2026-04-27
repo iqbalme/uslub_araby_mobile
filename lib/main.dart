@@ -5,15 +5,21 @@ import 'package:uslub_araby/providers/uslub_provider.dart';
 import 'package:uslub_araby/providers/theme_provider.dart';
 import 'package:uslub_araby/providers/saved_words_provider.dart';
 import 'package:uslub_araby/providers/flashcard_deck_provider.dart';
+import 'package:uslub_araby/services/notification_service.dart';
+import 'package:uslub_araby/providers/profile_provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(const MyApp());
+  await NotificationService().init();
+  final profileProvider = ProfileProvider();
+  await profileProvider.initialize();
+  runApp(MyApp(profileProvider: profileProvider));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final ProfileProvider profileProvider;
+  const MyApp({super.key, required this.profileProvider});
 
   @override
   Widget build(BuildContext context) {
@@ -59,6 +65,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
         ChangeNotifierProvider(create: (_) => SavedWordsProvider()),
         ChangeNotifierProvider(create: (_) => FlashcardDeckProvider()),
+        ChangeNotifierProvider.value(value: profileProvider),
       ],
       child: Consumer<ThemeProvider>(
         builder: (context, themeProvider, child) {

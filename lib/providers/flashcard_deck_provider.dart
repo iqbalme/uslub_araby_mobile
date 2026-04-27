@@ -152,4 +152,54 @@ class FlashcardDeckProvider with ChangeNotifier {
       return false;
     }
   }
+
+  Future<List<Map<String, dynamic>>> getAllFlashcardData() async {
+    try {
+      final cards = await _database.getAllCards();
+      return cards
+          .map(
+            (card) => {
+              'id': card.id,
+              'deckId': card.deckId,
+              'wordId': card.wordId,
+              'isLearned': card.isLearned,
+              'isMastered': card.isMastered,
+              'createdAt': card.createdAt.toIso8601String(),
+            },
+          )
+          .toList();
+    } catch (e) {
+      debugPrint('Error getting all flashcard data: $e');
+      return [];
+    }
+  }
+
+  Future<bool> importFlashcardProgress(List<dynamic> flashcardData) async {
+    try {
+      // First reset all progress
+      await _database.resetFlashcardProgress();
+
+      // Then update with imported data
+      for (final cardData in flashcardData) {
+        final cardId = cardData['id'] as int;
+        final isLearned = cardData['isLearned'] as bool? ?? false;
+        final isMastered = cardData['isMastered'] as bool? ?? false;
+
+        // Update the card with imported data
+        final existingCard = await _database.getCardById(cardId);
+        if (existingCard != null) {
+          final updatedCard = existingCard.copyWith(
+            isLearned: isLearned,
+            isMastered: isMastered,
+          );
+          await _database.updateCard(updatedCard);
+        }
+      }
+
+      return true;
+    } catch (e) {
+      debugPrint('Error importing flashcard progress: $e');
+      return false;
+    }
+  }
 }

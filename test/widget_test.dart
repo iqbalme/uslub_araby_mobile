@@ -1,28 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:provider/provider.dart';
 import 'package:uslub_araby/main.dart';
-import 'package:uslub_araby/providers/theme_provider.dart';
-import 'package:uslub_araby/providers/uslub_provider.dart';
+import 'package:uslub_araby/providers/profile_provider.dart';
 
 void main() {
-  // Setup provider yang dibutuhkan untuk tes
-  Widget createTestableWidget({required Widget child}) {
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => ThemeProvider()),
-        ChangeNotifierProvider(create: (_) => UslubProvider()),
-      ],
-      child: MaterialApp(
-        home: child,
-      ),
-    );
-  }
-
-  testWidgets('Layar utama menampilkan judul dan ikon pencarian',
-      (WidgetTester tester) async {
+  testWidgets('Layar utama menampilkan judul dan ikon pencarian', (
+    WidgetTester tester,
+  ) async {
     // Bangun widget MyApp di dalam lingkungan tes
-    await tester.pumpWidget(createTestableWidget(child: const MyApp()));
+    final profileProvider = ProfileProvider();
+    await tester.pumpWidget(MyApp(profileProvider: profileProvider));
 
     // Tunggu semua frame selesai dirender
     await tester.pumpAndSettle();

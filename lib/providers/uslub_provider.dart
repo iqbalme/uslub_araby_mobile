@@ -1,7 +1,13 @@
+import 'dart:convert';
 import 'dart:developer' as developer;
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/foundation.dart';
+import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uslub_araby/data/database.dart';
+
+const String baseUrl =
+    'https://uslub.bahasaarab.my.id'; // Ganti dengan URL API Anda
 
 class UslubProvider with ChangeNotifier {
   final AppDatabase _db = AppDatabase();
@@ -12,7 +18,10 @@ class UslubProvider with ChangeNotifier {
   String _searchText = '';
 
   UslubProvider() {
-    fetchWords();
+    Future.microtask(() async {
+      await _checkAndUpdateData();
+      await fetchWords();
+    });
     _loadRecentSearches();
   }
 
@@ -21,6 +30,46 @@ class UslubProvider with ChangeNotifier {
   bool get isLoading => _isLoading;
   String get currentQuery => _currentQuery;
   String get searchText => _searchText;
+
+  Future<void> _checkAndUpdateData() async {
+    try {
+      // Cek koneksi internet
+      final connectivityResult = await Connectivity().checkConnectivity();
+      if (connectivityResult == ConnectivityResult.none) {
+        return; // Tidak ada koneksi, skip update
+      }
+
+      // Cek pengaturan update data
+      final prefs = await SharedPreferences.getInstance();
+      final isUpdateEnabled =
+          prefs.getBool('auto_update_data') ?? true; // Default true
+      if (!isUpdateEnabled) {
+        return; // Update disabled
+      }
+
+      // Hitung jumlah record di tabel uslub
+      final localCount = await _db.getWordCount();
+
+      // Kirim request ke API
+      final response = await http.post(
+        Uri.parse('$baseUrl/api/update'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'local_count': localCount}),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data['update'] == true &&
+            data['data'] != null &&
+            data['data'].isNotEmpty) {
+          // Import data ke database
+          await _db.importUpdateData(data['data']);
+        }
+      }
+    } catch (e) {
+      developer.log('Error checking and updating data', error: e);
+    }
+  }
 
   Future<void> fetchWords() async {
     _isLoading = true;

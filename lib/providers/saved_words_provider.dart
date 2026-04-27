@@ -3,7 +3,8 @@ import 'package:uslub_araby/data/database.dart';
 
 class SavedWordsProvider with ChangeNotifier {
   final List<UslubData> _savedWords = [];
-  bool _isLoading = false;
+  final AppDatabase _database = AppDatabase();
+  final bool _isLoading = false;
 
   List<UslubData> get savedWords => _savedWords;
   bool get isLoading => _isLoading;
@@ -32,6 +33,17 @@ class SavedWordsProvider with ChangeNotifier {
 
   void clearAllSavedWords() {
     _savedWords.clear();
+    notifyListeners();
+  }
+
+  Future<void> importSavedWords(List<dynamic> savedWordsIds) async {
+    _savedWords.clear();
+    for (final wordId in savedWordsIds) {
+      final word = await _database.getWordById(wordId as int);
+      if (word != null) {
+        _savedWords.add(word);
+      }
+    }
     notifyListeners();
   }
 }

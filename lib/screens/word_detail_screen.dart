@@ -389,8 +389,8 @@ class _WordDetailScreenState extends State<WordDetailScreen> {
                         ],
                   ),
                   const SizedBox(height: 32), // Increased spacing
-                  Row(
-                    children: const [
+                  const Row(
+                    children: [
                       Icon(
                         Icons.format_quote,
                         color: Colors.blueAccent,

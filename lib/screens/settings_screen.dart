@@ -4,9 +4,174 @@ import 'package:panara_dialogs/panara_dialogs.dart';
 import 'package:uslub_araby/providers/theme_provider.dart';
 import 'package:uslub_araby/providers/saved_words_provider.dart';
 import 'package:uslub_araby/providers/flashcard_deck_provider.dart';
+import 'package:uslub_araby/services/notification_service.dart';
+import 'package:uslub_araby/services/data_export_import_service.dart';
 
-class SettingsScreen extends StatelessWidget {
+class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
+
+  @override
+  State<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends State<SettingsScreen> {
+  bool _learningReminderEnabled = false;
+  bool _newWordReminderEnabled = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadNotificationSettings();
+  }
+
+  Future<void> _loadNotificationSettings() async {
+    final learningEnabled = await NotificationService()
+        .isLearningReminderEnabled();
+    final newWordEnabled = await NotificationService()
+        .isNewWordReminderEnabled();
+    setState(() {
+      _learningReminderEnabled = learningEnabled;
+      _newWordReminderEnabled = newWordEnabled;
+    });
+  }
+
+  Future<void> _toggleLearningReminder(bool value) async {
+    setState(() => _learningReminderEnabled = value);
+    await NotificationService().scheduleDailyLearningReminder(value);
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          value
+              ? 'Pengingat belajar diaktifkan'
+              : 'Pengingat belajar dinonaktifkan',
+        ),
+      ),
+    );
+  }
+
+  Future<void> _toggleNewWordReminder(bool value) async {
+    setState(() => _newWordReminderEnabled = value);
+    await NotificationService().scheduleDailyNewWordReminder(value);
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          value
+              ? 'Pengingat kata baru diaktifkan'
+              : 'Pengingat kata baru dinonaktifkan',
+        ),
+      ),
+    );
+  }
+
+  Future<void> _exportData() async {
+    try {
+      final savedWordsProvider = Provider.of<SavedWordsProvider>(
+        context,
+        listen: false,
+      );
+      final flashcardProvider = Provider.of<FlashcardDeckProvider>(
+        context,
+        listen: false,
+      );
+      final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+
+      final exportService = DataExportImportService();
+      final filePath = await exportService.exportData(
+        savedWordsProvider: savedWordsProvider,
+        flashcardProvider: flashcardProvider,
+        themeProvider: themeProvider,
+      );
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Data berhasil diekspor ke: ${filePath?.split('/').last ?? 'file'}',
+          ),
+          action: SnackBarAction(label: 'OK', onPressed: () {}),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Gagal mengekspor data: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  Future<void> _importData() async {
+    try {
+      // Show confirmation dialog first
+      final shouldImport = await showDialog<bool>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Impor Data'),
+          content: const Text(
+            'Apakah Anda yakin ingin mengimpor data? Data yang ada akan digantikan dengan data dari file backup. Tindakan ini tidak dapat dibatalkan.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Batal'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: const Text('Impor'),
+              style: TextButton.styleFrom(foregroundColor: Colors.red),
+            ),
+          ],
+        ),
+      );
+
+      if (shouldImport != true) return;
+
+      final savedWordsProvider = Provider.of<SavedWordsProvider>(
+        context,
+        listen: false,
+      );
+      final flashcardProvider = Provider.of<FlashcardDeckProvider>(
+        context,
+        listen: false,
+      );
+      final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+
+      final importService = DataExportImportService();
+      final success = await importService.importData(
+        savedWordsProvider: savedWordsProvider,
+        flashcardProvider: flashcardProvider,
+        themeProvider: themeProvider,
+      );
+
+      if (!mounted) return;
+
+      if (success) {
+        // Reload notification settings after import
+        await _loadNotificationSettings();
+
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Data berhasil diimpor')));
+      } else {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Impor dibatalkan')));
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Gagal mengimpor data: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -95,15 +260,8 @@ class SettingsScreen extends StatelessWidget {
                 'Pengingat Belajar',
                 'Dapatkan notifikasi untuk belajar harian',
                 Icons.notifications,
-                true, // Placeholder - bisa ditambahkan state nanti
-                (value) {
-                  // TODO: Implement notification toggle
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Fitur notifikasi akan segera hadir'),
-                    ),
-                  );
-                },
+                _learningReminderEnabled,
+                _toggleLearningReminder,
               ),
 
               _buildSettingItem(
@@ -111,14 +269,8 @@ class SettingsScreen extends StatelessWidget {
                 'Pengingat Kata Baru',
                 'Notifikasi untuk kata baru setiap hari',
                 Icons.add_alert,
-                false, // Placeholder
-                (value) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Fitur notifikasi akan segera hadir'),
-                    ),
-                  );
-                },
+                _newWordReminderEnabled,
+                _toggleNewWordReminder,
               ),
 
               const SizedBox(height: 24),
@@ -164,13 +316,15 @@ class SettingsScreen extends StatelessWidget {
                       title: const Text('Ekspor Data'),
                       subtitle: const Text('Simpan data ke file'),
                       trailing: const Icon(Icons.chevron_right),
-                      onTap: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Fitur ekspor akan segera hadir'),
-                          ),
-                        );
-                      },
+                      onTap: _exportData,
+                    ),
+                    const Divider(),
+                    ListTile(
+                      leading: const Icon(Icons.upload, color: Colors.blue),
+                      title: const Text('Impor Data'),
+                      subtitle: const Text('Muat data dari file backup'),
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: _importData,
                     ),
                   ],
                 ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'help_screen.dart';
 
 class AboutScreen extends StatelessWidget {
   const AboutScreen({super.key});
@@ -72,7 +73,8 @@ class AboutScreen extends StatelessWidget {
                   '• Statistik pembelajaran\n'
                   '• Mode gelap/terang\n'
                   '• Flashcard untuk latihan\n\n'
-                  'Dikembangkan dengan ❤️ untuk memudahkan pembelajaran bahasa Arab.',
+                  'Dikembangkan dengan ❤️ untuk memudahkan pembelajaran bahasa Arab.\n\n'
+                  'Disadur dari tulisan ust Dr. Nasaruddin Idris Jauhar dalam programnya Nambah Uslub di Facebook.',
                   style: TextStyle(fontSize: 14, height: 1.6),
                 ),
               ),
@@ -140,14 +142,28 @@ class AboutScreen extends StatelessWidget {
                 padding: const EdgeInsets.all(16),
                 child: Column(
                   children: [
-                    const CircleAvatar(
+                    CircleAvatar(
                       radius: 30,
                       backgroundColor: Colors.teal,
-                      child: Icon(Icons.person, size: 30, color: Colors.white),
+                      child: ClipOval(
+                        child: Image.asset(
+                          'assets/developer.jpg',
+                          width: 60,
+                          height: 60,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return const Icon(
+                              Icons.person,
+                              size: 30,
+                              color: Colors.white,
+                            );
+                          },
+                        ),
+                      ),
                     ),
                     const SizedBox(height: 12),
                     const Text(
-                      'Developer',
+                      'Muhammad Iqbal, Lc.',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
@@ -155,7 +171,7 @@ class AboutScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Dikembangkan untuk memudahkan pembelajaran bahasa Arab',
+                      'Dibuat dalam bentuk aplikasi untuk memudahkan pembelajaran bahasa Arab oleh Muhammad Iqbal, Lc.',
                       style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                       textAlign: TextAlign.center,
                     ),
@@ -194,9 +210,9 @@ class AboutScreen extends StatelessWidget {
               'Panduan penggunaan aplikasi',
               Icons.help,
               () {
-                // TODO: Implement help system
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Panduan akan segera tersedia')),
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const HelpScreen()),
                 );
               },
             ),
@@ -206,7 +222,7 @@ class AboutScreen extends StatelessWidget {
             // Footer
             Center(
               child: Text(
-                '© 2024 Kamus Uslub. All rights reserved.',
+                '© 2026 Kamus Uslub. All rights reserved.',
                 style: TextStyle(fontSize: 12, color: Colors.grey[500]),
               ),
             ),

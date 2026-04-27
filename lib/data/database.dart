@@ -223,9 +223,9 @@ La ilaha illallah'''),
     return (update(flashcardCards)
           ..where((t) => t.isLearned.equals(true) | t.isMastered.equals(true)))
         .write(
-          FlashcardCardsCompanion(
-            isLearned: const Value(false),
-            isMastered: const Value(false),
+          const FlashcardCardsCompanion(
+            isLearned: Value(false),
+            isMastered: Value(false),
           ),
         );
   }
@@ -236,5 +236,30 @@ La ilaha illallah'''),
     final learned = cards.where((card) => card.isLearned).length;
     final mastered = cards.where((card) => card.isMastered).length;
     return {'total': cards.length, 'learned': learned, 'mastered': mastered};
+  }
+
+  Future<List<FlashcardCard>> getAllCards() => select(flashcardCards).get();
+
+  Future<void> importUpdateData(List<dynamic> data) async {
+    await batch((batch) {
+      for (var item in data) {
+        batch.insert(
+          uslub,
+          UslubCompanion.insert(
+            ungkapan: Value(item['ungkapan']),
+            makna: Value(item['makna']),
+            contoh: Value(item['contoh']),
+          ),
+          mode: InsertMode.insertOrReplace, // Update if exists, insert if not
+        );
+      }
+    });
+  }
+
+  Future<int> getWordCount() async {
+    final result = await (select(
+      uslub,
+    )..where((tbl) => tbl.id.isNotNull())).get();
+    return result.length;
   }
 }

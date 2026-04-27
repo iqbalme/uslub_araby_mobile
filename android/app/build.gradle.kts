@@ -7,10 +7,11 @@ plugins {
 
 android {
     namespace = "com.org.uslub_araby"
-    compileSdk = flutter.compileSdkVersion
+    compileSdk = 35  // Use latest stable SDK
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
+        isCoreLibraryDesugaringEnabled = true
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
@@ -24,8 +25,8 @@ android {
         applicationId = "com.org.uslub_araby"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = flutter.minSdkVersion
-        targetSdk = flutter.targetSdkVersion
+        minSdk = 21  // Explicit min SDK
+        targetSdk = 35  // Explicit target SDK (required for Android 15)
         versionCode = flutter.versionCode
         versionName = flutter.versionName
         multiDexEnabled = true
@@ -38,6 +39,11 @@ android {
             signingConfig = signingConfigs.getByName("debug")
         }
     }
+
+}
+
+dependencies {
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
 }
 
 flutter {

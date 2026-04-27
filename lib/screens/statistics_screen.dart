@@ -3,9 +3,44 @@ import 'package:provider/provider.dart';
 import 'package:uslub_araby/providers/uslub_provider.dart';
 import 'package:uslub_araby/providers/saved_words_provider.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class StatisticsScreen extends StatelessWidget {
+class StatisticsScreen extends StatefulWidget {
   const StatisticsScreen({super.key});
+
+  @override
+  State<StatisticsScreen> createState() => _StatisticsScreenState();
+}
+
+class _StatisticsScreenState extends State<StatisticsScreen> {
+  Map<String, bool> _achievements = {
+    'pemula': false,
+    'mahir': false,
+    'ahli': false,
+  };
+
+  @override
+  void initState() {
+    super.initState();
+    _loadAchievements();
+  }
+
+  Future<void> _loadAchievements() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _achievements['pemula'] = prefs.getBool('achievement_pemula') ?? false;
+      _achievements['mahir'] = prefs.getBool('achievement_mahir') ?? false;
+      _achievements['ahli'] = prefs.getBool('achievement_ahli') ?? false;
+    });
+  }
+
+  Future<void> _saveAchievement(String key, bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('achievement_$key', value);
+    setState(() {
+      _achievements[key] = value;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -15,6 +50,21 @@ class StatisticsScreen extends StatelessWidget {
         builder: (context, uslubProvider, savedProvider, child) {
           final totalWords = uslubProvider.words.length;
           final savedWords = savedProvider.savedWords.length;
+
+          // Check and update achievements
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (savedWords >= 10 && !_achievements['pemula']!) {
+              _saveAchievement('pemula', true);
+            }
+            if (savedWords >= 50 && !_achievements['mahir']!) {
+              _saveAchievement('mahir', true);
+            }
+            if (savedWords >= totalWords &&
+                totalWords > 0 &&
+                !_achievements['ahli']!) {
+              _saveAchievement('ahli', true);
+            }
+          });
 
           return SingleChildScrollView(
             padding: const EdgeInsets.all(
@@ -130,7 +180,7 @@ class StatisticsScreen extends StatelessWidget {
                   context,
                   'Pemula',
                   'Pelajari 10 kata pertama',
-                  savedWords >= 10,
+                  _achievements['pemula']!,
                   Icons.star_border,
                 ),
 
@@ -138,7 +188,7 @@ class StatisticsScreen extends StatelessWidget {
                   context,
                   'Mahir',
                   'Pelajari 50 kata',
-                  savedWords >= 50,
+                  _achievements['mahir']!,
                   Icons.star_half,
                 ),
 
@@ -146,7 +196,7 @@ class StatisticsScreen extends StatelessWidget {
                   context,
                   'Ahli',
                   'Pelajari semua kata',
-                  savedWords >= totalWords && totalWords > 0,
+                  _achievements['ahli']!,
                   Icons.star,
                 ),
 
